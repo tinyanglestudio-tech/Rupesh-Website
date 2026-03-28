@@ -1111,6 +1111,15 @@ body.page-per .pro-card { display: none !important; }
 }
 .chip-add-row button:hover { background:rgba(196,160,106,.15);border-color:rgba(196,160,106,.4);color:#c4a06a; }
 
+
+/* GitHub deploy button pulse */
+@keyframes ghPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(22,163,74,.0); }
+}
+#gh-deploy-btn { animation: ghPulse 2s ease infinite; }
+#gh-deploy-btn:hover { opacity: .88; animation: none; }
+
 </style>
 
 <meta property="og:title" content="Rupesh Shinde — Technology Product Manager · AI Builder"/>
@@ -1539,7 +1548,8 @@ body.page-per .pro-card { display: none !important; }
     <div class="ap-header">
       <div><div class="ap-title">&#9881; Admin Panel</div><div class="ap-subtitle">Logged in as <span id="logged-as" style="color:#c4a06a">Rupesh07</span></div></div>
       <div style="display:flex;gap:7px;align-items:center">
-        <button onclick="applyAndExport()" style="padding:6px 14px;border-radius:100px;background:linear-gradient(135deg,#c4a06a,#a07845);color:#070707;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">&#128190; Save</button>
+        <button onclick="applyAndExport()" style="padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);color:#f5f2ee;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">&#128190; Export</button>
+        <button onclick="deployToGitHub()" style="padding:6px 14px;border-radius:100px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">&#128640; Deploy</button>
         <button class="ap-close" onclick="doLogout()" style="font-size:11px;width:auto;padding:5px 10px;letter-spacing:.02em">Logout</button>
         <button class="ap-close" onclick="toggleAdmin()">&#10005;</button>
       </div>
@@ -1782,6 +1792,33 @@ body.page-per .pro-card { display: none !important; }
           <span class="ap-sec-badge2">&#127760; Save &amp; Deploy</span>
           <div style="font-size:11px;color:#555;line-height:1.7;margin-bottom:10px">Apply changes then download index.html to upload to GitHub.</div>
           <button class="ap-btn-export" style="width:100%;padding:12px" onclick="applyAndExport()">&#128190; Save &amp; Download index.html</button>
+          <div class="ap-divider"></div>
+          <span class="ap-sec-badge2">&#128279; GitHub Auto-Deploy</span>
+          <div style="font-size:11px;color:#9a968f;line-height:1.7;margin-bottom:12px">
+            Connect to GitHub so <strong style="color:#c4a06a">Save to GitHub</strong> pushes changes live automatically — no file download needed.
+          </div>
+          <div class="field-sublabel">GitHub Username</div>
+          <input class="ap-input" id="ap-gh-user" placeholder="e.g. rupesh-shinde" style="margin-bottom:8px"/>
+          <div class="field-sublabel">Repository Name</div>
+          <input class="ap-input" id="ap-gh-repo" placeholder="e.g. rupesh-shinde" style="margin-bottom:8px"/>
+          <div class="field-sublabel">GitHub Personal Access Token
+            <span style="margin-left:6px;font-size:9px;color:#c4a06a;cursor:pointer" onclick="document.getElementById('gh-token-help').style.display=document.getElementById('gh-token-help').style.display===\'none\'?\'\':\'none\'">&#9432; How to get</span>
+          </div>
+          <div id="gh-token-help" style="display:none;background:rgba(196,160,106,.06);border:1px solid rgba(196,160,106,.18);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:11px;color:#9a968f;line-height:1.7">
+            1. Go to <strong style="color:#f5f2ee">github.com → Settings → Developer settings</strong><br/>
+            2. Click <strong style="color:#f5f2ee">Personal access tokens → Tokens (classic)</strong><br/>
+            3. Click <strong style="color:#f5f2ee">Generate new token (classic)</strong><br/>
+            4. Give it a name e.g. "Website Admin"<br/>
+            5. Check <strong style="color:#f5f2ee">repo</strong> scope only<br/>
+            6. Click <strong style="color:#f5f2ee">Generate token</strong> → copy it here
+          </div>
+          <div class="al-eye" style="margin-bottom:8px">
+            <input class="ap-input" id="ap-gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+            <button class="al-eye-btn" onclick="togglePwd(\'ap-gh-token\',this)">&#128065;</button>
+          </div>
+          <button class="ap-btn-apply" style="width:100%;padding:11px;margin-bottom:8px" onclick="saveGitHubSettings()">&#128279; Save GitHub Settings</button>
+          <button class="ap-btn-apply" id="gh-deploy-btn" style="width:100%;padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);display:none" onclick="deployToGitHub()">&#128640; Save to GitHub &amp; Deploy Live</button>
+          <div id="gh-status" style="font-size:11px;margin-top:8px;line-height:1.65;display:none"></div>
         </div>
         <div class="ap-actions" style="display:none"></div>
       </div>
@@ -1912,7 +1949,7 @@ function apTab(tab){
 }
 
 /* Apply changes */
-function applyChanges(){ renderAll();
+function applyChanges(){ renderAll(); saveToStorage();
   /* ── EXPERIENCE ── */
   setTxt('exp-nov-co',v('exp-nov-co'));setTxt('exp-nov-loc',v('exp-nov-loc'));
   setTxt('exp-nov-dur',v('exp-nov-dur'));setTxt('exp-nov-r1',v('exp-nov-r1'));
@@ -2038,7 +2075,7 @@ function doLogin(){
     document.getElementById('admin-login').style.display='none';
     var c=document.getElementById('admin-content');c.style.display='flex';
     document.getElementById('logged-as').textContent=u;
-    initMediaPreviews();err.textContent='';loadFromStorage();wireAutoSave();initAdminCrud();renderAll();prefill('ap-rec-email',_recEmail);
+    initMediaPreviews();err.textContent='';loadFromStorage();wireAutoSave();initAdminCrud();renderAll();loadGitHubSettings();prefill('ap-rec-email',_recEmail);
   }else{err.innerHTML='&#10005; Incorrect username or password';document.getElementById('al-pass').value='';}
 }
 function doLogout(){
@@ -2317,17 +2354,41 @@ function loadFromStorage(){
 /* ── RESTORE DOM FROM SNAPSHOT (runs on every page load, no login needed) ── */
 function restoreFromSnapshot(){
   try{
+    /* 1. Restore DATA model — overwrites defaults if saved */
+    var savedData=localStorage.getItem('rs-data');
+    if(savedData){
+      var parsed=JSON.parse(savedData);
+      /* Merge each array safely */
+      ['expPro','expPer','projPro','projPer','skillsProClinical',
+       'skillsProDelivery','skillsPerAI','skillsPerEng','education'].forEach(function(key){
+        if(parsed[key]!==undefined) DATA[key]=parsed[key];
+      });
+      /* Re-render all dynamic sections immediately */
+      renderAll();
+    }
+
+    /* 2. Restore DOM text snapshots (hero/about/contact) */
     var domSnap=JSON.parse(localStorage.getItem('rs-dom-snap')||'{}');
     Object.keys(domSnap).forEach(function(id){
       var el=document.getElementById(id);
-      if(el&&domSnap[id])el.textContent=domSnap[id];
+      if(el&&domSnap[id]) el.textContent=domSnap[id];
     });
+
+    /* 3. Restore hrefs */
     var hrefSnap=JSON.parse(localStorage.getItem('rs-href-snap')||'{}');
     Object.keys(hrefSnap).forEach(function(id){
       var el=document.getElementById(id);
-      if(el&&hrefSnap[id])el.href=hrefSnap[id];
+      if(el&&hrefSnap[id]) el.href=hrefSnap[id];
     });
-  }catch(e){}
+
+    /* 4. Restore uploaded photos */
+    var photoSnap=JSON.parse(localStorage.getItem('rs-photos')||'{}');
+    Object.keys(photoSnap).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&photoSnap[id]) el.src=photoSnap[id];
+    });
+
+  }catch(e){ console.warn('restoreFromSnapshot error:',e); }
 }
 
 
@@ -2623,6 +2684,8 @@ function renderAll() {
   renderExpPro(); renderExpPer();
   renderProjPro(); renderProjPer();
   renderSkillsPro(); renderSkillsPer();
+  /* Auto-save DATA to localStorage on every render */
+  try{ localStorage.setItem('rs-data', JSON.stringify(DATA)); }catch(e){}
 }
 
 /* ── ADMIN CRUD helpers ── */
@@ -2876,9 +2939,149 @@ function uploadPhoto(evt, card){
       if(img) img.src=src;
     }
     toast('Photo updated \u2713');
+    /* Persist photo to localStorage */
+    try{
+      var photoSnap=JSON.parse(localStorage.getItem('rs-photos')||'{}');
+      photoSnap['hero-pro-img']=document.getElementById('hero-pro-img')&&document.getElementById('hero-pro-img').src.length>100?document.getElementById('hero-pro-img').src:'';
+      photoSnap['hero-per-img']=document.getElementById('hero-per-img')&&document.getElementById('hero-per-img').src.length>100?document.getElementById('hero-per-img').src:'';
+      localStorage.setItem('rs-photos',JSON.stringify(photoSnap));
+    }catch(pe){}
   };
   reader.readAsDataURL(file);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   GITHUB API — AUTO-DEPLOY
+   ═══════════════════════════════════════════════════════════ */
+
+function saveGitHubSettings() {
+  var user  = document.getElementById('ap-gh-user').value.trim();
+  var repo  = document.getElementById('ap-gh-repo').value.trim();
+  var token = document.getElementById('ap-gh-token').value.trim();
+  if (!user || !repo || !token) {
+    ghStatus('error', 'Please fill in all three fields.');
+    return;
+  }
+  try {
+    localStorage.setItem('rs-gh-user',  user);
+    localStorage.setItem('rs-gh-repo',  repo);
+    /* Store token in sessionStorage only (not persisted across browser close for security) */
+    sessionStorage.setItem('rs-gh-token', token);
+    showDeployButton(true);
+    ghStatus('ok', '\u2713 Settings saved. Ready to deploy!');
+    toast('GitHub connected \u2713');
+  } catch(e) {
+    ghStatus('error', 'Could not save settings: ' + e.message);
+  }
+}
+
+function showDeployButton(show) {
+  var btn = document.getElementById('gh-deploy-btn');
+  if (btn) btn.style.display = show ? 'block' : 'none';
+}
+
+function ghStatus(type, msg) {
+  var el = document.getElementById('gh-status');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.color = type === 'ok' ? '#86efac' : type === 'error' ? '#fca5a5' : '#c4a06a';
+  el.innerHTML = msg;
+}
+
+async function deployToGitHub() {
+  var user  = localStorage.getItem('rs-gh-user');
+  var repo  = localStorage.getItem('rs-gh-repo');
+  var token = sessionStorage.getItem('rs-gh-token');
+
+  if (!user || !repo || !token) {
+    ghStatus('error', '\u26a0 GitHub not configured. Fill in settings above first.');
+    return;
+  }
+
+  var btn = document.getElementById('gh-deploy-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '\u23f3 Deploying...'; }
+  ghStatus('info', '\u23f3 Step 1/3: Applying changes...');
+
+  try {
+    /* Step 1: Apply all admin changes to the DOM */
+    applyChanges();
+    await new Promise(function(r){ setTimeout(r, 400); });
+
+    ghStatus('info', '\u23f3 Step 2/3: Getting current file from GitHub...');
+
+    /* Step 2: Get the current file SHA (required by GitHub API to update) */
+    var apiBase = 'https://api.github.com/repos/' + user + '/' + repo + '/contents/index.html';
+    var headers = {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    };
+
+    var getResp = await fetch(apiBase, { headers: headers });
+    if (!getResp.ok) {
+      var err = await getResp.json();
+      throw new Error('GitHub API error: ' + (err.message || getResp.status));
+    }
+    var fileData = await getResp.json();
+    var sha = fileData.sha;
+
+    ghStatus('info', '\u23f3 Step 3/3: Uploading updated file to GitHub...');
+
+    /* Step 3: Get current page HTML and encode as base64 */
+    var pageHtml = document.documentElement.outerHTML;
+    var encoded = btoa(unescape(encodeURIComponent(pageHtml)));
+
+    /* Step 4: Push update to GitHub */
+    var putResp = await fetch(apiBase, {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify({
+        message: 'Website updated via Admin Panel \u2014 ' + new Date().toLocaleString(),
+        content: encoded,
+        sha: sha
+      })
+    });
+
+    if (!putResp.ok) {
+      var putErr = await putResp.json();
+      throw new Error('Upload failed: ' + (putErr.message || putResp.status));
+    }
+
+    /* Success! */
+    ghStatus('ok',
+      '\u2713 Deployed to GitHub! Vercel is rebuilding now.\n' +
+      '\u23f1 Your live site will update in ~60 seconds.'
+    );
+    toast('Deployed to GitHub \u2713 Live in ~60s');
+    saveToStorage(); /* also save to localStorage */
+
+  } catch(e) {
+    ghStatus('error',
+      '\u2715 Deploy failed: ' + e.message + '\n\n' +
+      'Check your token has "repo" permission and the username/repo are correct.'
+    );
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '\uD83D\uDE80 Save to GitHub & Deploy Live';
+    }
+  }
+}
+
+/* Load saved GitHub settings on admin open */
+function loadGitHubSettings() {
+  var user  = localStorage.getItem('rs-gh-user');
+  var repo  = localStorage.getItem('rs-gh-repo');
+  var token = sessionStorage.getItem('rs-gh-token');
+  var uEl = document.getElementById('ap-gh-user');
+  var rEl = document.getElementById('ap-gh-repo');
+  var tEl = document.getElementById('ap-gh-token');
+  if (uEl && user)  uEl.value = user;
+  if (rEl && repo)  rEl.value = repo;
+  if (tEl && token) tEl.value = token;
+  if (user && repo && token) showDeployButton(true);
+}
+
 </script>
 </body>
 </html>
