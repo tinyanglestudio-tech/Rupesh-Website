@@ -2966,7 +2966,7 @@ function saveGitHubSettings() {
     localStorage.setItem('rs-gh-user',  user);
     localStorage.setItem('rs-gh-repo',  repo);
     /* Store token in sessionStorage only (not persisted across browser close for security) */
-    sessionStorage.setItem('rs-gh-token', token);
+    localStorage.setItem('rs-gh-token', token);
     showDeployButton(true);
     ghStatus('ok', '\u2713 Settings saved. Ready to deploy!');
     toast('GitHub connected \u2713');
@@ -2991,10 +2991,10 @@ function ghStatus(type, msg) {
 async function deployToGitHub() {
   var user  = localStorage.getItem('rs-gh-user');
   var repo  = localStorage.getItem('rs-gh-repo');
-  var token = sessionStorage.getItem('rs-gh-token');
+  var token = localStorage.getItem('rs-gh-token');
 
   if (!user || !repo || !token) {
-    ghStatus('error', '\u26a0 GitHub not configured. Fill in settings above first.');
+    ghStatus('error', '\u26a0 Token missing or expired. Go to Account tab \u2192 GitHub Auto-Deploy and re-enter your token, then click Save GitHub Settings.');
     return;
   }
 
@@ -3081,14 +3081,17 @@ async function deployToGitHub() {
 function loadGitHubSettings() {
   var user  = localStorage.getItem('rs-gh-user');
   var repo  = localStorage.getItem('rs-gh-repo');
-  var token = sessionStorage.getItem('rs-gh-token');
+  var token = localStorage.getItem('rs-gh-token');
   var uEl = document.getElementById('ap-gh-user');
   var rEl = document.getElementById('ap-gh-repo');
   var tEl = document.getElementById('ap-gh-token');
   if (uEl && user)  uEl.value = user;
   if (rEl && repo)  rEl.value = repo;
   if (tEl && token) tEl.value = token;
-  if (user && repo && token) showDeployButton(true);
+  if (user && repo && token) {
+    showDeployButton(true);
+    ghStatus('ok', '\u2713 GitHub connected — ready to deploy!');
+  }
 }
 
 </script>
