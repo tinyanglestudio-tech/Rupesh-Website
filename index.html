@@ -839,10 +839,8 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
   font-weight: 600;
 }
 /* Card visibility controlled by page mode */
-/* Default: show pro, hide per */
 .per-card { display: none !important; }
 .pro-card { display: block !important; }
-/* When Personal tab active: flip visibility */
 body.page-per .per-card { display: block !important; }
 body.page-per .pro-card { display: none !important; }
 
@@ -2968,7 +2966,7 @@ function saveGitHubSettings() {
     localStorage.setItem('rs-gh-user',  user);
     localStorage.setItem('rs-gh-repo',  repo);
     /* Store token in sessionStorage only (not persisted across browser close for security) */
-    sessionStorage.setItem('rs-gh-token', token);
+    localStorage.setItem('rs-gh-token', token);
     showDeployButton(true);
     ghStatus('ok', '\u2713 Settings saved. Ready to deploy!');
     toast('GitHub connected \u2713');
@@ -2993,10 +2991,10 @@ function ghStatus(type, msg) {
 async function deployToGitHub() {
   var user  = localStorage.getItem('rs-gh-user');
   var repo  = localStorage.getItem('rs-gh-repo');
-  var token = sessionStorage.getItem('rs-gh-token');
+  var token = localStorage.getItem('rs-gh-token');
 
   if (!user || !repo || !token) {
-    ghStatus('error', '\u26a0 GitHub not configured. Fill in settings above first.');
+    ghStatus('error', '\u26a0 Token missing or expired. Go to Account tab \u2192 GitHub Auto-Deploy and re-enter your token, then click Save GitHub Settings.');
     return;
   }
 
@@ -3029,36 +3027,29 @@ async function deployToGitHub() {
 
     ghStatus('info', '\u23f3 Step 3/3: Uploading updated file to GitHub...');
 
-    /* Step 3: Capture + async encode */
+    /* Step 3: Capture page HTML and clean it as a string — no DOM manipulation */
     var pageHtml = document.documentElement.outerHTML;
-    pageHtml = pageHtml.replace(/(<div id="admin-panel"[^>]*class="[^"]*)\bopen\b([^"]*")/g,'$1$2');
-    pageHtml = pageHtml.replace(/\bpage-per\b/g,'');
-    ghStatus('info', '\u23f3 Encoding file...');
-    var encoded = await new Promise(function(resolve,reject){
-      try{
-        var blob=new Blob([pageHtml],{type:'text/html'});
-        var reader=new FileReader();
-        reader.onload=function(){resolve(reader.result.split(',')[1]);};
-        reader.onerror=function(){reject(new Error('FileReader failed'));};
-        reader.readAsDataURL(blob);
-      }catch(e){reject(e);}
-    });
+
+    /* Remove admin-panel open class so it doesn't deploy open */
+    pageHtml = pageHtml.replace(
+      /(<div id="admin-panel"[^>]*class="[^"]*)open([^"]*")/g,
+      '$1$2'
+    );
+    /* Remove page-per class so it deploys on Professional tab */
+    pageHtml = pageHtml.replace(/page-per/g, '');
+
+    var encoded = btoa(unescape(encodeURIComponent(pageHtml)));
 
     /* Step 4: Push update to GitHub */
-    /* PUT with AbortController timeout (30s) */
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function(){ controller.abort(); }, 30000);
     var putResp = await fetch(apiBase, {
       method: 'PUT',
       headers: headers,
-      signal: controller.signal,
       body: JSON.stringify({
         message: 'Website updated via Admin Panel \u2014 ' + new Date().toLocaleString(),
         content: encoded,
         sha: sha
       })
     });
-    clearTimeout(timeoutId);
 
     if (!putResp.ok) {
       var putErr = await putResp.json();
@@ -3074,10 +3065,10 @@ async function deployToGitHub() {
     saveToStorage(); /* also save to localStorage */
 
   } catch(e) {
-    var msg = e.name === 'AbortError'
-      ? '\u2715 Request timed out (30s). Check your internet connection and try again.'
-      : '\u2715 Deploy failed: ' + e.message + '\n\nCheck your token has \"repo\" permission and username/repo are correct.';
-    ghStatus('error', msg);
+    ghStatus('error',
+      '\u2715 Deploy failed: ' + e.message + '\n\n' +
+      'Check your token has "repo" permission and the username/repo are correct.'
+    );
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -3090,32 +3081,18 @@ async function deployToGitHub() {
 function loadGitHubSettings() {
   var user  = localStorage.getItem('rs-gh-user');
   var repo  = localStorage.getItem('rs-gh-repo');
-  var token = sessionStorage.getItem('rs-gh-token');
+  var token = localStorage.getItem('rs-gh-token');
   var uEl = document.getElementById('ap-gh-user');
   var rEl = document.getElementById('ap-gh-repo');
   var tEl = document.getElementById('ap-gh-token');
   if (uEl && user)  uEl.value = user;
   if (rEl && repo)  rEl.value = repo;
   if (tEl && token) tEl.value = token;
-  if (user && repo && token) showDeployButton(true);
-}
-
-
-/* Ensure admin button always shows correctly on page load */
-window.addEventListener('load', function() {
-  var navBtn = document.getElementById('nav-admin-btn');
-  if (navBtn) {
-    navBtn.innerHTML = '&#9881; Admin';
-    navBtn.classList.remove('is-open');
+  if (user && repo && token) {
+    showDeployButton(true);
+    ghStatus('ok', '\u2713 GitHub connected — ready to deploy!');
   }
-  var panel = document.getElementById('admin-panel');
-  if (panel) panel.classList.remove('open');
-  var login = document.getElementById('admin-login');
-  if (login) login.style.display = 'flex';
-  var content = document.getElementById('admin-content');
-  if (content) content.style.display = 'none';
-  adminOpen = false;
-});
+}
 
 </script>
 </body>
