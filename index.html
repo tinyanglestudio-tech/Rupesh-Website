@@ -2990,102 +2990,113 @@ function ghStatus(type, msg) {
   el.innerHTML = msg;
 }
 
-async function deployToGitHub() {
-  var user  = localStorage.getItem('rs-gh-user');
-  var repo  = localStorage.getItem('rs-gh-repo');
-  var token = sessionStorage.getItem('rs-gh-token');
 
-  if (!user || !repo || !token) {
-    ghStatus('error', '\u26a0 GitHub not configured. Fill in settings above first.');
-    return;
-  }
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
 
-  var btn = document.getElementById('gh-deploy-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '\u23f3 Deploying...'; }
-  ghStatus('info', '\u23f3 Step 1/3: Applying changes...');
+                
+              </style>
+                        </head>
+                        <body>
+                            
 
-  try {
-    /* Step 1: Apply all admin changes to the DOM */
-    applyChanges();
-    await new Promise(function(r){ setTimeout(r, 400); });
-
-    ghStatus('info', '\u23f3 Step 2/3: Getting current file from GitHub...');
-
-    /* Step 2: Get the current file SHA (required by GitHub API to update) */
-    var apiBase = 'https://api.github.com/repos/' + user + '/' + repo + '/contents/index.html';
-    var headers = {
-      'Authorization': 'token ' + token,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    };
-
-    var getResp = await fetch(apiBase, { headers: headers });
-    if (!getResp.ok) {
-      var err = await getResp.json();
-      throw new Error('GitHub API error: ' + (err.message || getResp.status));
+              <script>
+                              async function deployToGitHub() {
+    var user  = localStorage.getItem('rs-gh-user');
+    var repo  = localStorage.getItem('rs-gh-repo');
+    var token = sessionStorage.getItem('rs-gh-token');
+    
+    if (!user || !repo || !token) {
+        ghStatus('error', '⚠ GitHub not configured. Fill in settings above first.');
+        return;
     }
-    var fileData = await getResp.json();
-    var sha = fileData.sha;
-
-    ghStatus('info', '\u23f3 Step 3/3: Uploading updated file to GitHub...');
-
-    /* Step 3: Capture + async encode */
-    var pageHtml = document.documentElement.outerHTML;
-    pageHtml = pageHtml.replace(/(<div id="admin-panel"[^>]*class="[^"]*)\bopen\b([^"]*")/g,'$1$2');
-    pageHtml = pageHtml.replace(/\bpage-per\b/g,'');
-    ghStatus('info', '\u23f3 Encoding file...');
-    var encoded = await new Promise(function(resolve,reject){
-      try{
-        var blob=new Blob([pageHtml],{type:'text/html'});
-        var reader=new FileReader();
-        reader.onload=function(){resolve(reader.result.split(',')[1]);};
-        reader.onerror=function(){reject(new Error('FileReader failed'));};
-        reader.readAsDataURL(blob);
-      }catch(e){reject(e);}
-    });
-
-    /* Step 4: Push update to GitHub */
-    /* PUT with AbortController timeout (30s) */
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function(){ controller.abort(); }, 30000);
-    var putResp = await fetch(apiBase, {
-      method: 'PUT',
-      headers: headers,
-      signal: controller.signal,
-      body: JSON.stringify({
-        message: 'Website updated via Admin Panel \u2014 ' + new Date().toLocaleString(),
-        content: encoded,
-        sha: sha
-      })
-    });
-    clearTimeout(timeoutId);
-
-    if (!putResp.ok) {
-      var putErr = await putResp.json();
-      throw new Error('Upload failed: ' + (putErr.message || putResp.status));
+    
+    var btn = document.getElementById('gh-deploy-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Deploying...'; }
+    
+    ghStatus('info', '⏳ Step 1/3: Applying changes...');
+    
+    try {
+        /* Step 1: Apply all admin changes to the DOM */
+        applyChanges();
+        await new Promise(function(r){ setTimeout(r, 400); });
+        
+        ghStatus('info', '⏳ Step 2/3: Getting current file from GitHub...');
+        
+        /* Step 2: Get the current file SHA (required by GitHub API to update) */
+        var apiBase = 'https://api.github.com/repos/' + user + '/' + repo + '/contents/index.html';
+        var headers = {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        };
+        
+        var getResp = await fetch(apiBase, { headers: headers });
+        if (!getResp.ok) {
+            var err = await getResp.json();
+            throw new Error('GitHub API error: ' + (err.message || getResp.status));
+        }
+        var fileData = await getResp.json();
+        var sha = fileData.sha;
+        
+        ghStatus('info', '⏳ Step 3/3: Uploading updated file to GitHub...');
+        
+        /* Step 3: Capture and encode file content */
+        var pageHtml = document.documentElement.outerHTML;
+        /* Remove admin-open state before saving */
+        pageHtml = pageHtml.replace(/(<div id="admin-panel"[^>]*class="[^"]*)\bopen\b([^"]*")/g,'$1$2');
+        pageHtml = pageHtml.replace(/\bpage-per\b/g,'');
+        
+        /* Convert to base64 */
+        var encoded = btoa(unescape(encodeURIComponent(pageHtml)));
+        
+        /* Step 4: Push update to GitHub */
+        var putResp = await fetch(apiBase, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify({
+                message: 'Website updated via Admin Panel — ' + new Date().toLocaleString(),
+                content: encoded,
+                sha: sha
+            })
+        });
+        
+        if (!putResp.ok) {
+            var putErr = await putResp.json();
+            throw new Error('Upload failed: ' + (putErr.message || putResp.status));
+        }
+        
+        /* Success! */
+        ghStatus('ok',
+            '✓ Deployed to GitHub! Vercel is rebuilding now.<br/>' +
+            '⏱ Your live site will update in ~60 seconds.'
+        );
+        toast('Deployed to GitHub ✓ Live in ~60s');
+        saveToStorage();
+        
+    } catch(e) {
+        var msg = '✕ Deploy failed: ' + e.message + '<br/>Check your token has "repo" permission and username/repo are correct.';
+        ghStatus('error', msg);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '🚀 Save to GitHub & Deploy Live';
+        }
     }
-
-    /* Success! */
-    ghStatus('ok',
-      '\u2713 Deployed to GitHub! Vercel is rebuilding now.\n' +
-      '\u23f1 Your live site will update in ~60 seconds.'
-    );
-    toast('Deployed to GitHub \u2713 Live in ~60s');
-    saveToStorage(); /* also save to localStorage */
-
-  } catch(e) {
-    var msg = e.name === 'AbortError'
-      ? '\u2715 Request timed out (30s). Check your internet connection and try again.'
-      : '\u2715 Deploy failed: ' + e.message + '\n\nCheck your token has \"repo\" permission and username/repo are correct.';
-    ghStatus('error', msg);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = '\uD83D\uDE80 Save to GitHub & Deploy Live';
-    }
-  }
 }
 
+
+              </script>
+                        </body>
+                        </html>
+                    
 /* Load saved GitHub settings on admin open */
 function loadGitHubSettings() {
   var user  = localStorage.getItem('rs-gh-user');
