@@ -422,14 +422,68 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
   #admin-panel.open { right: 0 !important; }
 }
 
-/* ── TABLET (481–768px): frame but slightly narrower padding ── */
-@media (min-width: 481px) and (max-width: 900px) {
-  body { padding: 16px 12px 40px !important; }
+/* ── TABLET (481–768px): also frame-free, full-width ── */
+@media (min-width: 481px) and (max-width: 768px) {
+  body {
+    background: var(--ink) !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+  .phone {
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .sbar { display: none !important; }
+  .scroll { overflow-y: visible !important; max-height: none !important; }
+  .mnav { top: 0 !important; }
 }
 
-/* ── DESKTOP (>900px): original centered phone frame ── */
-@media (min-width: 901px) {
-  body { padding: 24px 16px 60px !important; }
+/* ── DESKTOP (>768px): remove frame, full-width real website ── */
+@media (min-width: 769px) {
+  body {
+    background: var(--ink) !important;
+    display: block !important;
+    padding: 0 !important;
+    min-height: 100vh;
+  }
+  .phone {
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: var(--ink) !important;
+    max-width: 100% !important;
+  }
+  /* Hide fake status bar on desktop too */
+  .sbar { display: none !important; }
+  /* Full-height natural scroll */
+  .scroll {
+    overflow-y: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  /* Nav sticks to real viewport top */
+  .mnav { top: 0 !important; }
+  /* Wider content on desktop */
+  .card-outer { padding: 0 40px !important; max-width: 860px; margin: 0 auto; }
+  .sec-hdr    { padding: 36px 40px 0 !important; max-width: 860px; margin: 0 auto; }
+  .dots-row   { max-width: 860px; margin: 0 auto; }
+  .mnav-brand, .nav-links { max-width: 860px; margin: 0 auto; }
+  /* Slightly larger type on desktop */
+  .sh   { font-size: 26px !important; }
+  .h1a, .h1b { font-size: 42px !important; }
+  .body { font-size: 14px !important; line-height: 1.9 !important; }
+  /* Admin panel sits naturally */
+  #admin-panel { width: min(520px, 100vw) !important; }
+  /* Photo fills nicely */
+  .photo-box { max-height: 480px; overflow: hidden; }
+  .photo-box img { object-fit: cover !important; }
+}
+
+/* ── WIDE DESKTOP (>1100px): cap content width, centre it ── */
+@media (min-width: 1101px) {
+  .phone { max-width: 900px !important; margin: 0 auto !important; }
+  .mnav  { position: sticky !important; }
 }
 
 
