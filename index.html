@@ -1,15 +1,17 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rupesh Shinde | Enterprise Product Leader &amp; AI Builder</title>
+    <title>Rupesh Shinde | Enterprise Product Leader & AI Builder</title>
     <meta name="description" content="Enterprise product leader with 18+ years in healthcare systems, global experience in the United States and Switzerland, and a builder mindset focused on AI-driven solutions.">
     <meta name="author" content="Rupesh Shinde">
-    <meta property="og:title" content="Rupesh Shinde | Enterprise Product Leader &amp; AI Builder">
-    <meta property="og:description" content="Building enterprise systems &amp; AI-driven solutions for real-world problems.">
+    <meta property="og:title" content="Rupesh Shinde | Enterprise Product Leader & AI Builder">
+    <meta property="og:description" content="Building enterprise systems & AI-driven solutions for real-world problems.">
     <meta property="og:type" content="website">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #ffffff;
@@ -399,7 +401,7 @@
     <!-- Skills -->
     <section id="skills">
         <div class="container">
-            <h2 class="section-title">Skills &amp; Credentials</h2>
+            <h2 class="section-title">Skills & Credentials</h2>
             <div class="grid-2">
                 <div>
                     <h3>Professional</h3>
@@ -415,11 +417,11 @@
                     <ul style="font-size:0.9rem; color:var(--text-secondary); padding-left:20px;">
                         <li>Veeva Vault Business Administrator</li>
                         <li>AI Tools for Healthcare Professionals (IIT Kanpur)</li>
-                        <li>Global Certificate in Data Science &amp; AI</li>
+                        <li>Global Certificate in Data Science & AI</li>
                     </ul>
                 </div>
                 <div>
-                    <h3>Technical &amp; AI</h3>
+                    <h3>Technical & AI</h3>
                     <div style="margin-top:10px;">
                         <span class="tag">Agentic AI</span>
                         <span class="tag">Generative AI</span>
@@ -458,7 +460,7 @@
     </footer>
 
     <!-- Admin Panel Modal -->
-    <div id="adminPanel" style="display: flex;">
+    <div id="adminPanel">
         <div class="admin-modal">
             <div class="admin-header">
                 <h3>⚙ Admin Panel</h3>
@@ -466,7 +468,7 @@
             </div>
             
             <!-- Login -->
-            <div id="adminLogin" style="display: none;">
+            <div id="adminLogin">
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" id="adminUser" placeholder="Enter username">
@@ -480,15 +482,15 @@
             </div>
 
             <!-- Dashboard -->
-            <div id="adminDashboard" style="display: block;">
+            <div id="adminDashboard" style="display:none;">
                 <div class="admin-tabs">
-                    <div class="admin-tab" onclick="AdminPanel.switchTab('content')">Content</div>
-                    <div class="admin-tab active" onclick="AdminPanel.switchTab('github')">GitHub Deploy</div>
+                    <div class="admin-tab active" onclick="AdminPanel.switchTab('content')">Content</div>
+                    <div class="admin-tab" onclick="AdminPanel.switchTab('github')">GitHub Deploy</div>
                     <div class="admin-tab" onclick="AdminPanel.switchTab('account')">Account</div>
                 </div>
 
                 <!-- Content Tab -->
-                <div id="tab-content" class="admin-content">
+                <div id="tab-content" class="admin-content active">
                     <div class="form-group">
                         <label>Hero Headline</label>
                         <input type="text" id="editHeroHeadline">
@@ -511,7 +513,7 @@
                 </div>
 
                 <!-- GitHub Tab -->
-                <div id="tab-github" class="admin-content active">
+                <div id="tab-github" class="admin-content">
                     <div class="github-settings">
                         <h4>🔗 GitHub Configuration</h4>
                         <p style="font-size:0.85rem; margin-bottom:15px; color:#555;">Enter details to enable direct deployment from this panel.</p>
@@ -531,9 +533,9 @@
                         <button class="btn-admin btn-secondary" style="width:100%" onclick="AdminPanel.saveGitHubConfig()">🔗 Save GitHub Settings</button>
                     </div>
                     <div class="admin-actions" style="margin-top:20px;">
-                        <button class="btn-admin btn-deploy" style="width:100%" onclick="AdminPanel.deployToGitHub()">🚀 Save to GitHub &amp; Deploy Live</button>
+                        <button class="btn-admin btn-deploy" style="width:100%" onclick="AdminPanel.deployToGitHub()">🚀 Save to GitHub & Deploy Live</button>
                     </div>
-                    <div id="deployStatus" style="margin-top: 15px; font-size: 0.85rem; color: rgb(102, 102, 102);">🔄 Fetching current file version...</div>
+                    <div id="deployStatus" style="margin-top:15px; font-size:0.85rem;"></div>
                 </div>
 
                 <!-- Account Tab -->
@@ -574,7 +576,6 @@
             login() {
                 const u = document.getElementById('adminUser').value;
                 const p = document.getElementById('adminPass').value;
-                // Simple client-side auth for personal site
                 if (u === 'Rupesh07' && p === 'Rupesh07') {
                     sessionStorage.setItem('adminSession', 'true');
                     this.isLoggedIn = true;
@@ -605,7 +606,6 @@
                 if (data.aboutProf) document.getElementById('aboutProfessional').textContent = data.aboutProf;
                 if (data.aboutPers) document.getElementById('aboutPersonal').textContent = data.aboutPers;
                 
-                // Populate inputs
                 document.getElementById('editHeroHeadline').value = document.getElementById('heroHeadline').textContent;
                 document.getElementById('editHeroSubtext').value = document.getElementById('heroSubtext').textContent;
                 document.getElementById('editAboutProf').value = document.getElementById('aboutProfessional').textContent;
@@ -653,14 +653,10 @@
                 statusDiv.style.color = '#666';
 
                 try {
-                    // 1. Save current content to DOM first
                     this.saveContent();
-
-                    // 2. Get HTML content
                     const htmlContent = document.documentElement.outerHTML;
                     const encodedContent = btoa(unescape(encodeURIComponent(htmlContent)));
 
-                    // 3. Get SHA
                     const shaRes = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/index.html`, {
                         headers: { 'Authorization': `token ${config.token}` }
                     });
@@ -673,7 +669,6 @@
 
                     statusDiv.innerHTML = '🚀 Pushing to GitHub...';
                     
-                    // 4. Push Update
                     const pushRes = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/index.html`, {
                         method: 'PUT',
                         headers: {
@@ -717,6 +712,5 @@
 
         document.addEventListener('DOMContentLoaded', () => AdminPanel.init());
     </script>
-
-
-<div class="notification notif-success">🔗 GitHub settings saved</div><div class="notification notif-success">💾 Changes saved locally</div></body></html>
+</body>
+</html>
