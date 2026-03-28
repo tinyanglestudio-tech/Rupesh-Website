@@ -1581,15 +1581,7 @@ function setTxt(id,val){var e=document.getElementById(id);if(e&&val)e.textConten
 function setHref(id,val){var e=document.getElementById(id);if(e&&val)e.href=val;}
 
 /* Export */
-function exportHTML(){ applyAndExport(); return; /* legacy — now uses applyAndExport */
-function _oldExportHTML_unused(){
-  var blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='rupesh-shinde-updated.html';
-  a.click();
-  toast('HTML exported ✓');
-}
+function exportHTML(){ applyAndExport(); }
 
 /* Toast */
 function toast(msg){
