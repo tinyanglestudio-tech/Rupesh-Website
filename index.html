@@ -3027,23 +3027,17 @@ async function deployToGitHub() {
 
     ghStatus('info', '\u23f3 Step 3/3: Uploading updated file to GitHub...');
 
-    /* Step 3: Reset page to clean default state before capturing HTML */
-    /* Close admin panel visually */
-    var adminPanel = document.getElementById('admin-panel');
-    var adminWasOpen = adminPanel && adminPanel.classList.contains('open');
-    if (adminPanel) adminPanel.classList.remove('open');
-    /* Switch to Professional tab */
-    if (typeof setPageMode === 'function') setPageMode('pro');
-    /* Scroll to top */
-    var scrollEl2 = document.querySelector('.scroll');
-    if (scrollEl2) scrollEl2.scrollTop = 0;
-    window.scrollTo(0, 0);
-    /* Wait for DOM to settle */
-    await new Promise(function(r){ setTimeout(r, 300); });
-    /* Capture clean HTML */
+    /* Step 3: Capture page HTML and clean it as a string — no DOM manipulation */
     var pageHtml = document.documentElement.outerHTML;
-    /* Restore admin panel */
-    if (adminWasOpen && adminPanel) adminPanel.classList.add('open');
+
+    /* Remove admin-panel open class so it doesn't deploy open */
+    pageHtml = pageHtml.replace(
+      /(<div id="admin-panel"[^>]*class="[^"]*)open([^"]*")/g,
+      '$1$2'
+    );
+    /* Remove page-per class so it deploys on Professional tab */
+    pageHtml = pageHtml.replace(/page-per/g, '');
+
     var encoded = btoa(unescape(encodeURIComponent(pageHtml)));
 
     /* Step 4: Push update to GitHub */
