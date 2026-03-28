@@ -44,9 +44,9 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 .sec-lbl{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--acc)}
 
 /* ── CARD SYSTEM ── */
-.card-outer{position:relative;padding:0 20px}
+.card-outer{position:relative;padding:0 22px}
 .card-inner{position:relative}
-.card{width:100%;padding:14px 0 6px}
+.card{width:100%;padding:14px 8px 6px}
 .card.hidden{display:none}
 .clabel{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
 .clabel.pro{background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.22)}
@@ -87,7 +87,7 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 .sn{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:var(--tp);line-height:1;margin-bottom:3px}
 .sl{font-size:7px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tm)}
 .photo-box{width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.09);margin-bottom:13px;position:relative;background:#050505}
-.photo-box img{width:100%;display:block;object-fit:contain}
+.photo-box img{width:100%;display:block;object-fit:contain;height:auto;max-height:none}
 .photo-ov{position:absolute;inset-x:0;bottom:0;height:90px;background:linear-gradient(to top,rgba(7,7,7,.9),transparent)}
 .photo-badge{position:absolute;bottom:12px;left:12px}
 .pb-n{font-family:'Playfair Display',serif;font-size:15px;font-weight:500;color:var(--tp)}
@@ -171,20 +171,17 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 
 /* PANEL */
 #admin-panel{
-  position:fixed;top:0;right:-110vw;width:min(480px,100vw);height:100vh;
-  background:#0f0f1a;border-left:1px solid rgba(255,255,255,.08);
+  position:fixed;inset:0;width:100vw;height:100vh;
+  background:#0c0c18;
   z-index:9998;overflow:hidden;
-  transition:right .38s cubic-bezier(.4,0,.2,1);
+  opacity:0;pointer-events:none;
+  transform:scale(.97);
+  transition:opacity .3s ease,transform .3s ease;
   display:flex;flex-direction:column;
-  box-shadow:-20px 0 60px rgba(0,0,0,.6);
 }
-#admin-panel.open{right:0}
+#admin-panel.open{opacity:1;pointer-events:all;transform:scale(1)}
 /* Overlay backdrop when panel open */
-#admin-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:9997;backdrop-filter:blur(2px);
-}
-#admin-overlay.show{display:block}
+#admin-overlay{display:none;}
 .ap-header{
   padding:20px 24px 16px;
   border-bottom:1px solid rgba(255,255,255,.07);
@@ -475,9 +472,9 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
   .body { font-size: 14px !important; line-height: 1.9 !important; }
   /* Admin panel sits naturally */
   #admin-panel { width: min(520px, 100vw) !important; }
-  /* Photo fills nicely */
-  .photo-box { max-height: 480px; overflow: hidden; }
-  .photo-box img { object-fit: cover !important; }
+  /* Photo — full height, no crop */
+  .photo-box { overflow: visible; }
+  .photo-box img { object-fit: contain !important; height: auto !important; }
 }
 
 /* ── WIDE DESKTOP (>1100px): cap content width, centre it ── */
@@ -731,6 +728,21 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 
 /* ── Chips stay the same — already readable ── */
 
+
+/* ── FIX 3: Consistent font across personal tiles ── */
+#hero-per *, #about-per *, #experience-per *,
+#projects-per *, #skills-per *, #contact-per * {
+  font-family: 'Inter', sans-serif !important;
+}
+/* Restore Playfair for headings and quotes only */
+#hero-per .sh, #about-per .sh, #experience-per .sh,
+#projects-per .sh, #skills-per .sh, #contact-per .sh,
+#hero-per .h1a, #hero-per .h1b,
+#hero-per .quote, #about-per .quote, #contact-per .quote,
+#about-per .passion, #projects-per .passion {
+  font-family: 'Playfair Display', serif !important;
+}
+
 </style>
 
 <meta property="og:title" content="Rupesh Shinde — Technology Product Manager · AI Builder"/>
@@ -743,6 +755,12 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 
 </head>
 <body>
+
+<div id="github-reminder" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#166534;color:#fff;padding:12px 20px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)">
+  &#10003; index.html downloaded — now go to <strong>github.com → your repo → Add file → Upload files</strong> → commit → Vercel deploys automatically
+  <button onclick="document.getElementById('github-reminder').style.display='none'" style="margin-left:16px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:Inter,sans-serif">Got it</button>
+</div>
+
 <div class="phone">
   <div class="sbar">
     <span class="sbar-t">9:41</span>
@@ -798,12 +816,12 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
 <span class="h1b" id="hero-pro-line2">that matter.</span>
 <p class="body" id="hero-pro-sub">Global Clinical CTMS Platform Leader with 18+ years engineering enterprise systems that power life-saving pharmaceutical research — across 20+ countries, 3 continents.</p>
 <div class="stats">
-  <div><div class="sn">18+</div><div class="sl">Yrs Enterprise</div></div>
-  <div><div class="sn">40+</div><div class="sl">Global Trials</div></div>
-  <div><div class="sn">4+2</div><div class="sl">US+CH Yrs</div></div>
-  <div><div class="sn">GxP</div><div class="sl">Validated</div></div>
+  <div><div class="sn" id="stat1-val">18+</div><div class="sl" id="stat1-lbl">Yrs Enterprise</div></div>
+  <div><div class="sn" id="stat2-val">40+</div><div class="sl" id="stat2-lbl">Global Trials</div></div>
+  <div><div class="sn" id="stat3-val">4+2</div><div class="sl" id="stat3-lbl">US+CH Yrs</div></div>
+  <div><div class="sn" id="stat4-val">GxP</div><div class="sl" id="stat4-lbl">Validated</div></div>
 </div>
-<div class="ctas"><button class="bp">View Work &#8594;</button><button class="bs">Contact</button></div>
+<div class="ctas"><button class="bp" onclick="scrollToSection('projects-section')">View Work &#8594;</button><button class="bs" onclick="scrollToSection('contact-section')">Contact</button></div>
       </div>
       <div class="card hidden" id="hero-per">
         <div class="clabel per">&#127775; Personal</div>
@@ -1157,7 +1175,7 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
     <div class="ap-header">
       <div><div class="ap-title">&#9881; Admin Panel</div><div class="ap-subtitle">Logged in as <span id="logged-as" style="color:#c4a06a">Rupesh07</span></div></div>
       <div style="display:flex;gap:7px;align-items:center">
-        <button onclick="applyChanges();saveToStorage();" style="padding:7px 13px;border-radius:9px;background:linear-gradient(135deg,#c4a06a,#a07845);color:#070707;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">&#128190; Save</button>
+        <button onclick="applyAndExport()" style="padding:7px 16px;border-radius:9px;background:linear-gradient(135deg,#c4a06a,#a07845);color:#070707;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;display:flex;align-items:center;gap:6px">&#128190; Save &amp; Download</button>
         <button class="ap-close" onclick="doLogout()" style="font-size:11px;width:auto;padding:5px 10px;letter-spacing:.02em">Logout</button>
         <button class="ap-close" onclick="toggleAdmin()">&#10005;</button>
       </div>
@@ -1166,11 +1184,17 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
       <div class="ap-tab active" id="tab-contact" onclick="apTab('contact')">&#128222; Contact</div>
       <div class="ap-tab" id="tab-hero" onclick="apTab('hero')">&#127968; Hero</div>
       <div class="ap-tab" id="tab-about" onclick="apTab('about')">&#128100; About</div>
-      <div class="ap-tab" id="tab-media" onclick="apTab('media')">&#128247; Media</div>
       <div class="ap-tab" id="tab-proj" onclick="apTab('proj')">&#128640; Projects</div>
       <div class="ap-tab" id="tab-account" onclick="apTab('account')">&#128272; Account</div>
     </div>
-    <div class="ap-body">
+    <div style="background:linear-gradient(135deg,rgba(196,160,106,.15),rgba(196,160,106,.05));border-bottom:1px solid rgba(196,160,106,.25);padding:12px 20px;display:flex;align-items:flex-start;gap:10px;flex-shrink:0">
+  <div style="font-size:18px;flex-shrink:0">&#128161;</div>
+  <div>
+    <div style="font-size:11px;font-weight:700;color:#c4a06a;margin-bottom:4px">How to save your changes permanently</div>
+    <div style="font-size:11px;color:#9a968f;line-height:1.65">1&#46; Make your edits below &nbsp;&#8594;&nbsp; 2&#46; Click <strong style="color:#c4a06a">Apply Live</strong> to preview &nbsp;&#8594;&nbsp; 3&#46; Click <strong style="color:#c4a06a">Save &amp; Download</strong> to get a new file &nbsp;&#8594;&nbsp; 4&#46; Upload <strong style="color:#f5f2ee">index.html</strong> to GitHub &nbsp;&#8594;&nbsp; Vercel auto-deploys in ~1 min</div>
+  </div>
+</div>
+<div class="ap-body">
 
       <!-- CONTACT -->
       <div class="ap-section active" id="sec-contact">
@@ -1195,7 +1219,7 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
         </div>
         <div class="ap-actions">
           <button class="ap-btn-apply" onclick="applyChanges()">&#9654; Apply Live</button>
-          <button class="ap-btn-export" onclick="exportHTML()">&#8681; Export</button>
+          <button class="ap-btn-export" onclick="applyAndExport()">&#128190; Save &amp; Download</button>
         </div>
       </div>
 
@@ -1216,9 +1240,39 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
           <div class="field-sublabel" style="margin-top:8px">Headline Line 2 (italic)</div><input class="ap-input" id="ap-h-per-line2"/>
           <div class="field-sublabel" style="margin-top:8px">Body Paragraph</div><textarea class="ap-textarea" id="ap-h-per-body"></textarea>
         </div>
+
+        <div class="ap-divider"></div>
+        <div class="field-group">
+          <span class="field-label">&#128202; Hero Stats</span>
+          <div class="field-row">
+            <div><div class="field-sublabel">Stat 1 Value</div><input class="ap-input" id="ap-stat1-val" placeholder="18+"/></div>
+            <div><div class="field-sublabel">Stat 1 Label</div><input class="ap-input" id="ap-stat1-lbl" placeholder="Yrs Enterprise"/></div>
+          </div>
+          <div class="field-row">
+            <div><div class="field-sublabel">Stat 2 Value</div><input class="ap-input" id="ap-stat2-val" placeholder="40+"/></div>
+            <div><div class="field-sublabel">Stat 2 Label</div><input class="ap-input" id="ap-stat2-lbl" placeholder="Global Trials"/></div>
+          </div>
+          <div class="field-row">
+            <div><div class="field-sublabel">Stat 3 Value</div><input class="ap-input" id="ap-stat3-val" placeholder="4+2"/></div>
+            <div><div class="field-sublabel">Stat 3 Label</div><input class="ap-input" id="ap-stat3-lbl" placeholder="US+CH Yrs"/></div>
+          </div>
+          <div class="field-row">
+            <div><div class="field-sublabel">Stat 4 Value</div><input class="ap-input" id="ap-stat4-val" placeholder="GxP"/></div>
+            <div><div class="field-sublabel">Stat 4 Label</div><input class="ap-input" id="ap-stat4-lbl" placeholder="Validated"/></div>
+          </div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="field-group">
+          <span class="field-label">&#128247; Hero Media</span>
+          <div class="field-sublabel" style="margin-bottom:8px">Professional card — Profile Photo</div>
+          <div class="upload-zone"><input type="file" accept="image/*" onchange="uploadHeroPhoto(event)"/><div class="uz-ico">&#128444;</div><div class="uz-txt"><strong>Replace Profile Photo</strong>Both Pro &amp; Per cards update</div></div>
+          <div class="field-sublabel" style="margin-top:12px;margin-bottom:8px">Personal card — Additional Media</div>
+          <div class="media-items" id="mi-hero-per" style="margin-bottom:8px"></div>
+          <div class="upload-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'hero','per')"/><div class="uz-ico">&#128444;</div><div class="uz-txt"><strong>Upload Photo or Video</strong>Appears on Personal card</div></div>
+        </div>
         <div class="ap-actions">
           <button class="ap-btn-apply" onclick="applyChanges()">&#9654; Apply Live</button>
-          <button class="ap-btn-export" onclick="exportHTML()">&#8681; Export</button>
+          <button class="ap-btn-export" onclick="applyAndExport()">&#128190; Save &amp; Download</button>
         </div>
       </div>
 
@@ -1237,84 +1291,13 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
         </div>
         <div class="ap-actions">
           <button class="ap-btn-apply" onclick="applyChanges()">&#9654; Apply Live</button>
-          <button class="ap-btn-export" onclick="exportHTML()">&#8681; Export</button>
+          <button class="ap-btn-export" onclick="applyAndExport()">&#128190; Save &amp; Download</button>
         </div>
       </div>
 
-      <!-- MEDIA -->
-      <div class="ap-section" id="sec-media">
-        <div style="padding:11px 13px;border-radius:9px;background:rgba(196,160,106,.06);border:1px solid rgba(196,160,106,.18);margin-bottom:14px;font-size:11px;color:#9a968f;line-height:1.65">
-          <strong style="color:#c4a06a;display:block;margin-bottom:3px">&#128247; Media Manager</strong>
-          Control photos &amp; videos for each section&#39;s <strong style="color:#93c5fd">Professional</strong> and <strong style="color:#c4b5fd">Personal</strong> cards independently. Upload &middot; Hide/Show &middot; Delete.
-        </div>
 
-        <!-- HERO -->
-        <div class="media-sec-wrap">
-          <div class="media-sec-hdr" onclick="toggleMediaSec('ms-hero')">
-            <div class="media-sec-hdr-left"><span class="media-sec-ico">&#127968;</span><span class="media-sec-title">Hero / Identity</span></div>
-            <span class="media-sec-arrow" id="arr-ms-hero">&#9656;</span>
-          </div>
-          <div class="media-sec-body" id="ms-hero">
-            <div class="media-card-tabs">
-              <div class="mct pro-t" id="mct-hero-pro" onclick="switchMediaCard('hero','pro')">&#127970; Professional</div>
-              <div class="mct" id="mct-hero-per" onclick="switchMediaCard('hero','per')">&#127775; Personal</div>
-            </div>
-            <div class="media-card-body show" id="mcb-hero-pro">
-              <div class="media-items" id="mi-hero-pro"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'hero','pro')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Professional card</div></div>
-            </div>
-            <div class="media-card-body" id="mcb-hero-per">
-              <div class="media-items" id="mi-hero-per"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'hero','per')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Personal card</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ABOUT -->
-        <div class="media-sec-wrap">
-          <div class="media-sec-hdr" onclick="toggleMediaSec('ms-about')">
-            <div class="media-sec-hdr-left"><span class="media-sec-ico">&#128100;</span><span class="media-sec-title">About</span></div>
-            <span class="media-sec-arrow" id="arr-ms-about">&#9656;</span>
-          </div>
-          <div class="media-sec-body" id="ms-about">
-            <div class="media-card-tabs">
-              <div class="mct pro-t" id="mct-about-pro" onclick="switchMediaCard('about','pro')">&#127970; Professional</div>
-              <div class="mct" id="mct-about-per" onclick="switchMediaCard('about','per')">&#127775; Personal</div>
-            </div>
-            <div class="media-card-body show" id="mcb-about-pro">
-              <div class="media-items" id="mi-about-pro"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'about','pro')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Professional card</div></div>
-            </div>
-            <div class="media-card-body" id="mcb-about-per">
-              <div class="media-items" id="mi-about-per"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'about','per')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Personal card</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- EXPERIENCE -->
-        <div class="media-sec-wrap">
-          <div class="media-sec-hdr" onclick="toggleMediaSec('ms-exp')">
-            <div class="media-sec-hdr-left"><span class="media-sec-ico">&#128188;</span><span class="media-sec-title">Experience</span></div>
-            <span class="media-sec-arrow" id="arr-ms-exp">&#9656;</span>
-          </div>
-          <div class="media-sec-body" id="ms-exp">
-            <div class="media-card-tabs">
-              <div class="mct pro-t" id="mct-exp-pro" onclick="switchMediaCard('exp','pro')">&#127970; Professional</div>
-              <div class="mct" id="mct-exp-per" onclick="switchMediaCard('exp','per')">&#127775; Personal</div>
-            </div>
-            <div class="media-card-body show" id="mcb-exp-pro">
-              <div class="media-items" id="mi-exp-pro"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'exp','pro')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Professional card</div></div>
-            </div>
-            <div class="media-card-body" id="mcb-exp-per">
-              <div class="media-items" id="mi-exp-per"></div>
-              <div class="mup-zone"><input type="file" accept="image/*,video/*" multiple onchange="addMedia(event,'exp','per')"/><div class="mup-zone-ico">&#128444;</div><div class="mup-zone-lbl"><strong>Upload Photo or Video</strong>For Personal card</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PROJECTS -->
+      <!-- MEDIA REMOVED - embedded per section -->
+            <!-- PROJECTS -->
         <div class="media-sec-wrap">
           <div class="media-sec-hdr" onclick="toggleMediaSec('ms-proj')">
             <div class="media-sec-hdr-left"><span class="media-sec-ico">&#128640;</span><span class="media-sec-title">Projects</span></div>
@@ -1395,9 +1378,20 @@ body{background:var(--s2);display:flex;justify-content:center;padding:24px 16px 
             <div><div class="field-sublabel">SportsIn</div><select class="ap-select" id="st-sprt"><option>Live</option><option>MVP Complete</option><option>In Development</option></select></div>
           </div>
         </div>
+
+        <div class="ap-divider"></div>
+        <div class="field-group">
+          <span class="field-label">&#128247; Projects Media</span>
+          <div class="field-sublabel" style="margin-bottom:8px">Professional card — App Icons</div>
+          <div class="media-items" id="mi-proj-pro" style="margin-bottom:8px"></div>
+          <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="addMedia(event,'proj','pro')"/><div class="uz-ico">&#128444;</div><div class="uz-txt"><strong>Upload App Icon</strong>Professional card</div></div>
+          <div class="field-sublabel" style="margin-top:12px;margin-bottom:8px">Personal card — App Icons</div>
+          <div class="media-items" id="mi-proj-per" style="margin-bottom:8px"></div>
+          <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="addMedia(event,'proj','per')"/><div class="uz-ico">&#128444;</div><div class="uz-txt"><strong>Upload App Icon</strong>Personal card</div></div>
+        </div>
         <div class="ap-actions">
           <button class="ap-btn-apply" onclick="applyChanges()">&#9654; Apply Live</button>
-          <button class="ap-btn-export" onclick="exportHTML()">&#8681; Export</button>
+          <button class="ap-btn-export" onclick="applyAndExport()">&#128190; Save &amp; Download</button>
         </div>
       </div>
 
@@ -1530,7 +1524,7 @@ var adminOpen=false;
 function toggleAdmin(){
   adminOpen=!adminOpen;
   document.getElementById('admin-panel').classList.toggle('open',adminOpen);
-  document.getElementById('admin-overlay').classList.toggle('show',adminOpen);
+  /* overlay not needed for full-page panel */
   var navBtn=document.getElementById('nav-admin-btn');
   if(navBtn){
     navBtn.classList.toggle('is-open',adminOpen);
@@ -1572,6 +1566,11 @@ function applyChanges(){
   setTxt('contact-per-collab',v('c-per-collab'));
   /* ── CONTACT PER closing quote ── */
   setTxt('contact-per-quote',v('c-per-quote'));
+  /* ── STATS ── */
+  setTxt('stat1-val',v('stat1-val'));setTxt('stat1-lbl',v('stat1-lbl'));
+  setTxt('stat2-val',v('stat2-val'));setTxt('stat2-lbl',v('stat2-lbl'));
+  setTxt('stat3-val',v('stat3-val'));setTxt('stat3-lbl',v('stat3-lbl'));
+  setTxt('stat4-val',v('stat4-val'));setTxt('stat4-lbl',v('stat4-lbl'));
   /* ── SITE NAME ── */
   setTxt('site-name',v('s-name'));setTxt('site-title',v('s-title'));
   toast('Changes applied live ✓');
@@ -1582,7 +1581,8 @@ function setTxt(id,val){var e=document.getElementById(id);if(e&&val)e.textConten
 function setHref(id,val){var e=document.getElementById(id);if(e&&val)e.href=val;}
 
 /* Export */
-function exportHTML(){
+function exportHTML(){ applyAndExport(); return; /* legacy — now uses applyAndExport */
+function _oldExportHTML_unused(){
   var blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
   var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -1601,6 +1601,7 @@ function toast(msg){
 
 /* Pre-fill admin fields on load */
 window.addEventListener('load',function(){
+  restoreFromSnapshot(); /* re-apply saved changes instantly */
   prefill('c-linkedin-url','https://www.linkedin.com/in/rupesh-shinde-r0102037s');
   prefill('c-gmail','Rupeshshinde07@gmail.com');
   prefill('c-whatsapp','+919665992188');
@@ -1621,6 +1622,10 @@ window.addEventListener('load',function(){
   prefill('c-per-quote','A systems-oriented leader who combines enterprise-scale experience with hands-on execution — focused on building solutions that reduce delays and improve efficiency in healthcare and beyond.');
   prefill('s-name','Rupesh Shinde');
   prefill('s-title','Technology Product Manager · AI Builder · GxP Expert');
+  prefill('stat1-val','18+');prefill('stat1-lbl','Yrs Enterprise');
+  prefill('stat2-val','40+');prefill('stat2-lbl','Global Trials');
+  prefill('stat3-val','4+2');prefill('stat3-lbl','US+CH Yrs');
+  prefill('stat4-val','GxP');prefill('stat4-lbl','Validated');
 });
 function prefill(id,val){var e=document.getElementById('ap-'+id);if(e)e.value=val;}
 
@@ -1634,7 +1639,7 @@ function doLogin(){
     document.getElementById('admin-login').style.display='none';
     var c=document.getElementById('admin-content');c.style.display='flex';
     document.getElementById('logged-as').textContent=u;
-    initMediaPreviews();err.textContent='';loadFromStorage();prefill('ap-rec-email',_recEmail);
+    initMediaPreviews();err.textContent='';loadFromStorage();wireAutoSave();prefill('ap-rec-email',_recEmail);
   }else{err.innerHTML='&#10005; Incorrect username or password';document.getElementById('al-pass').value='';}
 }
 function doLogout(){
@@ -1859,28 +1864,117 @@ function initMediaPreviews(){
 /* ── SAVE / PERSIST ── */
 function saveToStorage(){
   try{
+    /* Save admin field values */
     var data={};
-    /* collect all ap-input and ap-textarea values */
     document.querySelectorAll('[id^="ap-"]').forEach(function(el){
       if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'){
         data[el.id]=el.value;
       }
     });
-    localStorage.setItem('rs-admin-data',JSON.stringify(data));
+    /* Also snapshot live DOM text so page can restore without re-login */
+    var domSnap={};
+    var snapIds=[
+      'hero-pro-line1','hero-pro-line2','hero-pro-sub','hero-pro-badge-sub',
+      'hero-per-quote','hero-per-line1','hero-per-line2','hero-per-body',
+      'about-pro-body1','about-pro-body2','about-per-quote','about-per-body',
+      'contact-pro-opento','contact-per-collab','contact-per-quote',
+      'site-name','site-title',
+      'stat1-val','stat1-lbl','stat2-val','stat2-lbl',
+      'stat3-val','stat3-lbl','stat4-val','stat4-lbl',
+      'val-linkedin','val-gmail','val-whatsapp-num','val-instagram','val-whatsapp'
+    ];
+    snapIds.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) domSnap[id]=el.textContent||el.innerText||'';
+    });
+    /* Snapshot hrefs */
+    var hrefIds=['link-linkedin','link-gmail','link-whatsapp','link-instagram'];
+    var hrefSnap={};
+    hrefIds.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) hrefSnap[id]=el.href||'';
+    });
+    localStorage.setItem('rs-admin-data', JSON.stringify(data));
+    localStorage.setItem('rs-dom-snap',   JSON.stringify(domSnap));
+    localStorage.setItem('rs-href-snap',  JSON.stringify(hrefSnap));
     toast('Changes saved \u2713');
-  }catch(e){toast('Saved in session (no localStorage) \u2713');}
+  }catch(e){ toast('Saved in session \u2713'); }
 }
 function loadFromStorage(){
   try{
     var raw=localStorage.getItem('rs-admin-data');
-    if(!raw)return;
-    var data=JSON.parse(raw);
-    Object.keys(data).forEach(function(id){
-      var el=document.getElementById(id);
-      if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'))el.value=data[id];
-    });
-    applyChanges();
+    if(raw){
+      var data=JSON.parse(raw);
+      Object.keys(data).forEach(function(id){
+        var el=document.getElementById(id);
+        if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'))el.value=data[id];
+      });
+      applyChanges();
+    }
   }catch(e){}
+}
+
+
+/* ── RESTORE DOM FROM SNAPSHOT (runs on every page load, no login needed) ── */
+function restoreFromSnapshot(){
+  try{
+    var domSnap=JSON.parse(localStorage.getItem('rs-dom-snap')||'{}');
+    Object.keys(domSnap).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&domSnap[id])el.textContent=domSnap[id];
+    });
+    var hrefSnap=JSON.parse(localStorage.getItem('rs-href-snap')||'{}');
+    Object.keys(hrefSnap).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&hrefSnap[id])el.href=hrefSnap[id];
+    });
+  }catch(e){}
+}
+
+
+/* Auto-save admin fields on change with 800ms debounce */
+var _autoSaveTimer=null;
+function scheduleAutoSave(){
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(function(){
+    applyChanges();
+    saveToStorage();
+    var t=document.getElementById('toast');
+    if(t){t.querySelector('.toast-msg').textContent='Auto-saved ✓';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},1800);}
+  }, 800);
+}
+
+
+function wireAutoSave(){
+  document.querySelectorAll('#admin-content .ap-input, #admin-content .ap-textarea, #admin-content .ap-select').forEach(function(el){
+    el.addEventListener('input', scheduleAutoSave);
+    el.addEventListener('change', scheduleAutoSave);
+  });
+}
+
+
+/* ── APPLY + EXPORT in one click ── */
+function applyAndExport(){
+  applyChanges();
+  /* small delay so DOM updates before we capture outerHTML */
+  setTimeout(function(){
+    try{
+      /* Strip any existing admin-is-open state before export */
+      var panel=document.getElementById('admin-panel');
+      var wasOpen=panel&&panel.classList.contains('open');
+      if(wasOpen){ panel.classList.remove('open'); }
+      var blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='index.html';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      if(wasOpen){ panel.classList.add('open'); }
+      toast('Downloaded index.html ✓ Now upload to GitHub');
+    }catch(e){
+      toast('Error downloading: '+e.message);
+    }
+  }, 300);
 }
 
 </script>
