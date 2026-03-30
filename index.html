@@ -3029,24 +3029,14 @@ async function deployToGitHub() {
 
     ghStatus('info', '\u23f3 Step 3/3: Uploading updated file to GitHub...');
 
-    /* Step 3: Capture HTML, bake current DATA, clean state */
+    /* Step 3: Capture HTML, bake DATA, clean state */
     var pageHtml = document.documentElement.outerHTML;
-    /* Clean admin open state */
-    pageHtml = pageHtml.replace(/(<div id="admin-panel"[^>]*class="[^"]*)open/g,'$1');
-    /* Remove personal mode class */
+    pageHtml = pageHtml.replace(/(<div id="admin-panel"[^>]*class="[^"]*) open/g,'$1');
     pageHtml = pageHtml.replace(/page-per/g,'');
-    /* Bake current DATA into the JS source so deploys data survives refresh */
     try {
-      var dataJson = JSON.stringify(DATA, null, 0);
-      pageHtml = pageHtml.replace(
-        /var DATA = \{[\s\S]*?\};
-
-\/\* ── RENDER FUNCTIONS/,
-        'var DATA = ' + dataJson + ';
-
-/* ── RENDER FUNCTIONS'
-      );
-    } catch(de) { console.warn('DATA bake failed:', de); }
+      var dataStr = 'var DATA = ' + JSON.stringify(DATA) + ';';
+      pageHtml = pageHtml.replace(/var DATA = \{[\s\S]{10,10000}?\};/, dataStr);
+    } catch(de) {}
     ghStatus('info', '\u23f3 Encoding file...');
     var encoded = await new Promise(function(resolve,reject){
       try{
